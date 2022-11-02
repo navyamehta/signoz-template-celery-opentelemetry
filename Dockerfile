@@ -16,4 +16,4 @@ ENV CUDNN_CONV_WSCAP_DBG=4096
 
 COPY . /app/
 WORKDIR /app
-CMD opentelemetry-instrument --logs_exporter otlp_proto_grpc,console --traces_exporter otlp_proto_grpc celery -A wombo.celery_paint.celeryapp worker --loglevel=info --pool=threads
+CMD opentelemetry-instrument --logs_exporter otlp_proto_grpc,console --traces_exporter otlp_proto_grpc,console celery -A wombo.celery_paint.celeryapp worker --loglevel=info
