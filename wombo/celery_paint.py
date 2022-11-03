@@ -7,7 +7,7 @@ from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from typing import Dict, Any
 from kombu import Queue
 from celery import Celery
-from wombo import config
+from wombo import config, metrics
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -38,5 +38,6 @@ celeryapp.conf.task_default_queue = config.QUEUE_ENDPOINT
 
 @celeryapp.task(name="WomboPaint")
 def handle_paint_task(params_dict: Dict[str, Any]):
+    metrics.requests_counter.add(1)
     logger.warning("SEE THIS WARNING BEING EMITTED")
     logger.info(f"{params_dict}")
