@@ -8,6 +8,8 @@ from typing import Dict, Any
 from kombu import Queue
 from celery import Celery
 from wombo import config, metrics
+from celery.signals import setup_logging
+from opentelemetry.sdk._logs import LoggingHandler
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -34,6 +36,19 @@ celeryapp.conf.task_default_queue = config.QUEUE_ENDPOINT
 #     #LoggingInstrumentor().instrument(set_logging_format=True)
 #     #CeleryInstrumentor().instrument()
 #     #logger.warning("Instrumentation of Celery initiated...")
+
+
+@setup_logging.connect
+def setup_loggers(*args, **kwargs):
+    # OTEL Handler
+    logger = logging.getLogger()
+    logger.addHandler(LoggingHandler())
+
+    # Stdout Handler
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    sh = logging.StreamHandler()
+    sh.setFormatter(formatter)
+    logger.addHandler(sh)
 
 
 @celeryapp.task(name="WomboPaint")
