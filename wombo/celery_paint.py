@@ -4,6 +4,8 @@ import logging
 from typing import Dict, Any
 from kombu import Queue
 from celery import Celery
+from celery.signals import setup_logging
+from opentelemetry.sdk._logs import LoggingHandler
 from wombo import config, metrics
 
 # Set up logging
