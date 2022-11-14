@@ -1,12 +1,11 @@
 import os
 import importlib
 import logging
-from celery.signals import worker_process_init
-from opentelemetry.instrumentation.celery import CeleryInstrumentor
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from typing import Dict, Any
 from kombu import Queue
 from celery import Celery
+from celery.signals import setup_logging
+from opentelemetry.sdk._logs import LoggingHandler
 from wombo import config, metrics
 from celery.signals import setup_logging
 from opentelemetry.sdk._logs import LoggingHandler
@@ -22,20 +21,17 @@ celeryapp = Celery('celerypaint')
 celeryapp.config_from_object(celeryconfig)
 celeryapp.conf.task_queues = (Queue(config.QUEUE_ENDPOINT),)
 celeryapp.conf.task_default_queue = config.QUEUE_ENDPOINT
-# logger.info(f"Initialized celerypaint for queue {config.QUEUE_ENDPOINT}")
+logger.info(f"Initialized celerypaint for queue {config.QUEUE_ENDPOINT}")
 
 
-# @worker_process_init.connect(weak=False)
-# def init_celery_tracing(*args, **kwargs):
-#     """
-#     When tracing a celery worker process, tracing and instrumention both must be initialized after the celery worker
-#     process is initialized. This is required for any tracing components that might use threading to work correctly
-#     such as the BatchSpanProcessor. Celery provides a signal called worker_process_init that can be used to
-#     accomplish this
-#     """
-#     #LoggingInstrumentor().instrument(set_logging_format=True)
-#     #CeleryInstrumentor().instrument()
-#     #logger.warning("Instrumentation of Celery initiated...")
+@setup_logging.connect
+def setup_loggers(*args, **kwargs):
+    logger = logging.getLogger()
+    logger.addHandler(LoggingHandler())
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    stream = logging.StreamHandler()
+    stream.setFormatter(formatter)
+    logger.addHandler(stream)
 
 
 @setup_logging.connect
