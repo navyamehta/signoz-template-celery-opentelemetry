@@ -26,25 +26,10 @@ logger.info(f"Initialized celerypaint for queue {config.QUEUE_ENDPOINT}")
 
 @setup_logging.connect
 def setup_loggers(*args, **kwargs):
-    logger = logging.getLogger()
-    logger.addHandler(LoggingHandler())
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     stream = logging.StreamHandler()
     stream.setFormatter(formatter)
     logger.addHandler(stream)
-
-
-@setup_logging.connect
-def setup_loggers(*args, **kwargs):
-    # OTEL Handler
-    logger = logging.getLogger()
-    logger.addHandler(LoggingHandler())
-
-    # Stdout Handler
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    sh = logging.StreamHandler()
-    sh.setFormatter(formatter)
-    logger.addHandler(sh)
 
 
 @celeryapp.task(name="WomboPaint")
